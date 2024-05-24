@@ -103,10 +103,13 @@
                         if ($mode == 1) {
                             $output = salsa20_encrypt($plaintext, $key, $nonce);
                             echo '<div class="form-group p-2 " id="outputdisini">
-                            <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($output).'</textarea>
-                        </div>';
+                                    <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($output).'</textarea>
+                                </div>';
                         } elseif ($mode == 2) {
-                            $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
+                            $output = salsa20_decrypt($plaintext, $key, $nonce);
+                            echo '<div class="form-group p-2 " id="outputdisini">
+                                    <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.$output.'</textarea>
+                                </div>';
                         }
 
                         // $ciphertext = salsa20_encrypt($plaintext, $keypadded, $nonce);

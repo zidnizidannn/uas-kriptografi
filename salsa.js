@@ -1,90 +1,119 @@
-// Fungsi untuk mengonversi string heksadesimal menjadi array byte
-function hexToBytes(hex) {
-    const bytes = new Uint8Array(hex.length / 2);
-    for (let i = 0; i < hex.length; i += 2) {
-        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
-    }
-    return bytes;
-}
-
-// Fungsi untuk mengonversi array byte menjadi array 32-bit
-function bytesToWords(bytes) {
-    const words = new Uint32Array(bytes.length / 4);
-    for (let i = 0; i < bytes.length; i += 4) {
-        words[i / 4] = (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3];
-    }
-    return words;
-}
-
-// Fungsi quarter round Salsa20
+// Salsa20 quarter round function
 function salsa20_quarterRound(a, b, c, d) {
-    b ^= (a + d) << 7;
-    c ^= (b + a) << 9;
-    d ^= (c + b) << 13;
-    a ^= (d + c) << 18;
-    return [a, b, c, d];
+    b ^= ((a + d) & 0xffffffff) << 7 | ((a + d) & 0xffffffff) >>> (32 - 7);
+    c ^= ((b + a) & 0xffffffff) << 9 | ((b + a) & 0xffffffff) >>> (32 - 9);
+    d ^= ((c + b) & 0xffffffff) << 13 | ((c + b) & 0xffffffff) >>> (32 - 13);
+    a ^= ((d + c) & 0xffffffff) << 18 | ((d + c) & 0xffffffff) >>> (32 - 18);
 }
 
-// Fungsi double round Salsa20
+// Salsa20 double round function
 function salsa20_doubleRound(x) {
-    [x[0], x[4], x[8], x[12]] = salsa20_quarterRound(x[0], x[4], x[8], x[12]);
-    [x[5], x[9], x[13], x[1]] = salsa20_quarterRound(x[5], x[9], x[13], x[1]);
-    [x[10], x[14], x[2], x[6]] = salsa20_quarterRound(x[10], x[14], x[2], x[6]);
-    [x[15], x[3], x[7], x[11]] = salsa20_quarterRound(x[15], x[3], x[7], x[11]);
-    [x[0], x[5], x[10], x[15]] = salsa20_quarterRound(x[0], x[5], x[10], x[15]);
-    [x[1], x[6], x[11], x[12]] = salsa20_quarterRound(x[1], x[6], x[11], x[12]);
-    [x[2], x[7], x[8], x[13]] = salsa20_quarterRound(x[2], x[7], x[8], x[13]);
-    [x[3], x[4], x[9], x[14]] = salsa20_quarterRound(x[3], x[4], x[9], x[14]);
-    return x;
+    salsa20_quarterRound(x[0], x[4], x[8], x[12]);
+    salsa20_quarterRound(x[5], x[9], x[13], x[1]);
+    salsa20_quarterRound(x[10], x[14], x[2], x[6]);
+    salsa20_quarterRound(x[15], x[3], x[7], x[11]);
+    salsa20_quarterRound(x[0], x[5], x[10], x[15]);
+    salsa20_quarterRound(x[1], x[6], x[11], x[12]);
+    salsa20_quarterRound(x[2], x[7], x[8], x[13]);
+    salsa20_quarterRound(x[3], x[4], x[9], x[14]);
 }
 
-// Fungsi hash Salsa20
-function salsa20_hash(input, k, n) {
-    let x = new Uint32Array(k.length + n.length + input.length);
-    x.set(k);
-    x.set(n, k.length);
-    x.set(input, k.length + n.length);
-
+// Salsa20 hash function
+function salsa20_hash(input) {
+    const x = [...input];
     for (let i = 0; i < 10; i++) {
-        x = salsa20_doubleRound(x);
+        salsa20_doubleRound(x);
     }
     return x;
 }
 
-// Fungsi enkripsi Salsa20
+// Salsa20 block function
+function salsa20_block(key, nonce, counter) {
+    const constants = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574]; // "expand 32-byte k"
+    const state = [
+        ...constants,
+        ...Array.from(new Uint32Array(key.buffer)),
+        counter,
+        0,
+        ...Array.from(new Uint32Array(nonce.buffer)),
+    ];
+    const workingState = salsa20_hash(state);
+    for (let i = 0; i < 16; i++) {
+        workingState[i] = (workingState[i] + state[i]) & 0xffffffff;
+    }
+    const output = new Uint8Array(64);
+    for (let i = 0; i < 16; i++) {
+        output.set(new Uint8Array((new Uint32Array([workingState[i]])).buffer), i * 4);
+    }
+    return output;
+}
+
+// Salsa20 encryption function
 function salsa20_encrypt(plaintext, key, nonce) {
-    const k = bytesToWords(key);
-    const n = bytesToWords(nonce);
-    let ciphertext = '';
-    let counter = 0;
-    const blocks = plaintext.match(/.{1,64}/g) || [''];
-    for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i].padEnd(64, '\0');
-        const input = new Uint32Array([counter].concat(block.match(/.{1,4}/g).map(byte => parseInt(byte, 16) || 0)));
-        const output = new Uint32Array(salsa20_hash(input, k, n));
-        const tmp = new Uint8Array(output.buffer);
-        const blockCipher = new Uint8Array(block.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-        for (let j = 0; j < blockCipher.length; j++) {
-            ciphertext += String.fromCharCode(blockCipher[j] ^ tmp[j]);
+    const paddedKey = new Uint8Array(32);
+    paddedKey.set(new TextEncoder().encode(key));
+    const paddedNonce = new Uint8Array(8);
+    paddedNonce.set(new TextEncoder().encode(nonce));
+    let ciphertext = new Uint8Array();
+    const blockCount = Math.ceil(plaintext.length / 64);
+    for (let counter = 0; counter < blockCount; counter++) {
+        const block = salsa20_block(paddedKey, paddedNonce, counter);
+        const chunk = new TextEncoder().encode(plaintext.slice(counter * 64, (counter + 1) * 64));
+        const encryptedChunk = new Uint8Array(chunk.length);
+        for (let i = 0; i < chunk.length; i++) {
+            encryptedChunk[i] = chunk[i] ^ block[i];
         }
-        counter++;
+        ciphertext = new Uint8Array([...ciphertext, ...encryptedChunk]);
     }
     return ciphertext;
 }
 
-// Fungsi dekripsi Salsa20
+// Salsa20 decryption function
 function salsa20_decrypt(ciphertext, key, nonce) {
-    return salsa20_encrypt(ciphertext, key, nonce);
+    const paddedKey = new Uint8Array(32);
+    paddedKey.set(new TextEncoder().encode(key));
+    const paddedNonce = new Uint8Array(8);
+    paddedNonce.set(new TextEncoder().encode(nonce));
+    let plaintext = new Uint8Array();
+    const blockCount = Math.ceil(ciphertext.length / 64);
+    for (let counter = 0; counter < blockCount; counter++) {
+        const block = salsa20_block(paddedKey, paddedNonce, counter);
+        const chunk = ciphertext.slice(counter * 64, (counter + 1) * 64);
+        const decryptedChunk = new Uint8Array(chunk.length);
+        for (let i = 0; i < chunk.length; i++) {
+            decryptedChunk[i] = chunk[i] ^ block[i];
+        }
+        plaintext = new Uint8Array([...plaintext, ...decryptedChunk]);
+    }
+    return new TextDecoder().decode(plaintext);
 }
 
-// Contoh penggunaan
-const key = hexToBytes('696e69206b756e6369'); // 'ini kunci' dalam heksadesimal
-const plaintext = 'zidnizidan';
-const nonce = hexToBytes('71776572353775'); // 'qwer57uj' dalam heksadesimal
+function uint8ArrayToHex(uint8Array) {
+    return Array.from(uint8Array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
 
-const ciphertext = salsa20_encrypt(plaintext, key, nonce);
-const decrypted = salsa20_decrypt(ciphertext, key, nonce);
+// Fungsi untuk mengonversi string hex menjadi Uint8Array
+function hexToUint8Array(hexString) {
+    const length = hexString.length;
+    const uint8Array = new Uint8Array(length / 2);
+    for (let i = 0; i < length; i += 2) {
+        uint8Array[i / 2] = parseInt(hexString.substr(i, 2), 16);
+    }
+    return uint8Array;
+}
 
-console.log('Plaintext:', plaintext);
-console.log('Ciphertext:', Buffer.from(ciphertext).toString('hex'));
-console.log('Decrypted:', decrypted);
+const key = '12345678901234567890123456789012';
+const nonce = '12345678';
+const plaintext = 'zidnizidanmahestra';
+
+console.log('key: ', key, '\nnonce: ', nonce, '\nplainteks: ', plaintext);
+
+const ciphertextUint8Array = salsa20_encrypt(plaintext, key, nonce);
+const ciphertextHex = uint8ArrayToHex(ciphertextUint8Array);
+console.log('Ciphertext (hex):', ciphertextHex);
+
+const ciphertextUint8ArrayFromHex = hexToUint8Array(ciphertextHex);
+const decryptedText = salsa20_decrypt(ciphertextUint8ArrayFromHex, key, nonce);
+console.log('Decrypted Text:', decryptedText);
+
+console.log('Decryption successful:', plaintext === decryptedText);
