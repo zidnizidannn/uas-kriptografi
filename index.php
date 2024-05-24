@@ -57,7 +57,7 @@
             <div class="d-flex flex-column">
                 <span class="fw-bold h5 align-self-center ">Start Encrypt</span>
 
-                <form action="" method="post">
+                <form action="" method="POST">
                     <div class="form-group p-2 ">
                         <textarea type="text" class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="plaintext" placeholder="Input plaintext"></textarea>
 
@@ -66,7 +66,7 @@
 
                     <div class="d-flex justify-content-center">
 
-                        <select class="btn text-light form-select w-auto  " id="option" aria-label="Default select example">
+                        <select class="btn text-light form-select w-auto  " id="option" name="mode" aria-label="Default select example">
                             <option class="bg-dark " selected>Mode</option>
                             <option class="bg-dark " value="1">Encrypt</option>
                             <option class="bg-dark " value="2">Decrypt</option>
@@ -75,9 +75,62 @@
                         <input class="btn text-light mx-2 " type="submit" style="background-color: var(--blue);" value="Encrypt">
                     </div>
 
-                    <div class="form-group p-2 ">
-                        <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output"><?php echo isset($output) ? htmlspecialchars($output) : ''; ?></textarea>
-                    </div>
+                    <!-- <div class="form-group p-2 " id="outputdisini">
+                        <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output"></textarea>
+                    </div> -->
+
+                    <?php
+                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                        require_once "salsa2.php";
+
+                        $plaintext = $_POST['plaintext'];
+                        $key = $_POST['key'];
+                        $mode = $_POST['mode'];
+                        $nonce = '0985jg61';
+
+                        // $key = "kunci";
+                        // $plaintext = "zidnizidan";
+                        // $nonce = '0985jg61';
+
+                        
+                        // Pad or hash the key to ensure it's 32 bytes long
+                        if (strlen($key) < 32) {
+                            $keypadded = str_pad($key, 32, "\0");
+                        } else {
+                            $keypadded = substr(hash('sha256', $key, true), 0, 32);
+                        }
+
+                        if ($mode == 1) {
+                            $output = salsa20_encrypt($plaintext, $key, $nonce);
+                            echo '<div class="form-group p-2 " id="outputdisini">
+                            <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($output).'</textarea>
+                        </div>';
+                        } elseif ($mode == 2) {
+                            $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
+                        }
+
+                        // $ciphertext = salsa20_encrypt($plaintext, $keypadded, $nonce);
+                        // $decrypted = salsa20_decrypt($ciphertext, $keypadded, $nonce);
+                        
+                        // echo "Plaintext: $plaintext<br>";
+                        // echo "Ciphertext: " . bin2hex($ciphertext) . "<br>";
+                        // echo "Decrypted: $decrypted<br> ini kuncinya: " . $key;
+
+                        // echo '<div class="form-group p-2 " id="outputdisini">
+                        //     <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($ciphertext).'</textarea>
+                        // </div>';
+
+
+                        // if ($mode == 1) {
+                        //     $output = salsa20_encrypt($plaintext, $key, "your_nonce_here");
+                        //     echo '<div class="form-group p-2 " id="outputdisini">
+                        //     <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.$output.'</textarea>
+                        // </div>';
+                        // } elseif ($mode == 2) {
+                        //     $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
+                        // }
+                    }
+                    ?>
                 </form>
             </div>
         </div>
@@ -86,21 +139,6 @@
     <div class="footer text-center d-flex align-items-center justify-content-center " style="height:50px ; background-color: black;">
         <span class="" style="font-size: small;">Kriptografi dan Keamanan Informasi | copyright by Kelompok 4</span>
     </div>
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once "salsa2.php";
-
-    //     $plaintext = isset($_POST['plaintext']) ? $_POST['plaintext'] : '';
-    //     $key = isset($_POST['key']) ? $_POST['key'] : '';
-    //     $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
-
-    //     if ($mode == 1) {
-    //         $output = salsa20_encrypt($plaintext, $key, "your_nonce_here");
-    //     } elseif ($mode == 2) {
-    //         $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
-    //     }
-    // }
-    ?>
 </body>
 
 </html>
