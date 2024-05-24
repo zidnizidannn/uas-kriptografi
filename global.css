@@ -1,0 +1,22 @@
+:root {
+    --blue: rgb(75, 92, 249);
+    --fade: rgba(255, 255, 255, 0.70);
+}
+html{
+    /* font-size: 16px; */
+}
+*{
+    font-family: 'mono regular';
+    color: white;
+}
+::selection {
+    background-color: white;
+    color: black;
+}
+.bold{
+    font-family: 'mono bold';
+}
+
+.header, .footer, .main > :not(.content) {
+    padding: 0 20%;
+}

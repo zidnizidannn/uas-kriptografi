@@ -1,0 +1,17 @@
+@font-face {
+    font-family: "mono bold";
+    src: url(/assets/DMMono-Medium.ttf);
+}
+@font-face {
+    font-family: "mono light";
+    src: url(/assets/DMMono-Light.ttf);
+}
+@font-face {
+    font-family: "mono regular";
+    src: url(/assets/DMMono-Regular.ttf);
+}
+
+
+/* body{
+    font-family: "Dylan W03 CondensedXBold";
+} */
