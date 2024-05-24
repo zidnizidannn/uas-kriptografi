@@ -90,16 +90,16 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once "salsa2.php";
 
-        $plaintext = isset($_POST['plaintext']) ? $_POST['plaintext'] : '';
-        $key = isset($_POST['key']) ? $_POST['key'] : '';
-        $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
+    //     $plaintext = isset($_POST['plaintext']) ? $_POST['plaintext'] : '';
+    //     $key = isset($_POST['key']) ? $_POST['key'] : '';
+    //     $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
-        if ($mode == 1) {
-            $output = salsa20_encrypt($plaintext, $key, "your_nonce_here");
-        } elseif ($mode == 2) {
-            $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
-        }
-    }
+    //     if ($mode == 1) {
+    //         $output = salsa20_encrypt($plaintext, $key, "your_nonce_here");
+    //     } elseif ($mode == 2) {
+    //         $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
+    //     }
+    // }
     ?>
 </body>
 

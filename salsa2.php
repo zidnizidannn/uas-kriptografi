@@ -77,21 +77,21 @@ function salsa20_decrypt($ciphertext, $key, $nonce)
     return salsa20_encrypt($ciphertext, $key, $nonce);
 }
 
-// // Handle user input
-// $key = "kunci";
-// $plaintext = "zidnizidan";
-// $nonce = '0985jg61';
+// Handle user input
+$key = "kunci";
+$plaintext = "zidnizidan";
+$nonce = '0985jg61';
 
-// // Pad or hash the key to ensure it's 32 bytes long
-// if (strlen($key) < 32) {
-//     $keypadded = str_pad($key, 32, "\0");
-// } else {
-//     $keypadded = substr(hash('sha256', $key, true), 0, 32);
-// }
+// Pad or hash the key to ensure it's 32 bytes long
+if (strlen($key) < 32) {
+    $keypadded = str_pad($key, 32, "\0");
+} else {
+    $keypadded = substr(hash('sha256', $key, true), 0, 32);
+}
 
-// $ciphertext = salsa20_encrypt($plaintext, $keypadded, $nonce);
-// $decrypted = salsa20_decrypt($ciphertext, $keypadded, $nonce);
+$ciphertext = salsa20_encrypt($plaintext, $keypadded, $nonce);
+$decrypted = salsa20_decrypt($ciphertext, $keypadded, $nonce);
 
-// echo "Plaintext: $plaintext<br>";
-// echo "Ciphertext: " . bin2hex($ciphertext) . "<br>";
-// echo "Decrypted: $decrypted<br> ini kuncinya: " . $key;
+echo "Plaintext: $plaintext<br>";
+echo "Ciphertext: " . bin2hex($ciphertext) . "<br>";
+echo "Decrypted: $decrypted<br> ini kuncinya: " . $key;
