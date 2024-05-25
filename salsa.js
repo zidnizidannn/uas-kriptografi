@@ -102,18 +102,23 @@ function hexToUint8Array(hexString) {
     return uint8Array;
 }
 
-const key = '12345678901234567890123456789012';
-const nonce = '12345678';
-const plaintext = 'zidnizidanmahestra';
+// let key = 'ghsjeudbsmcsa';
+// const nonce = 'hjo09hy6';
+// const plaintext = 'nama saya zidni';
 
-console.log('key: ', key, '\nnonce: ', nonce, '\nplainteks: ', plaintext);
+// let keypad;
 
-const ciphertextUint8Array = salsa20_encrypt(plaintext, key, nonce);
-const ciphertextHex = uint8ArrayToHex(ciphertextUint8Array);
-console.log('Ciphertext (hex):', ciphertextHex);
+// if (key.length < 32) {
+//     const keypad = key.padStart(32, '\0');
+// }
 
-const ciphertextUint8ArrayFromHex = hexToUint8Array(ciphertextHex);
-const decryptedText = salsa20_decrypt(ciphertextUint8ArrayFromHex, key, nonce);
-console.log('Decrypted Text:', decryptedText);
 
-console.log('Decryption successful:', plaintext === decryptedText);
+// const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
+// const ciphertextHex = uint8ArrayToHex(ciphertextUint8Array);
+// console.log(keypad, '\n', 'Ciphertext (hex):', ciphertextHex);
+
+// const ciphertextUint8ArrayFromHex = hexToUint8Array(ciphertextHex);
+// const decryptedText = salsa20_decrypt(ciphertextUint8ArrayFromHex, keypad, nonce);
+// console.log('Decrypted Text:', decryptedText);
+
+// console.log('Decryption successful:', plaintext === decryptedText);

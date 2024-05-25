@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="pattern.css">
     <link rel="stylesheet" href="font.css">
     <script src="assets/bootstrap.bundle.min.js"></script>
+    <script src="/salsa.js"></script>
     <!-- <script src="https://kit.fontawesome.com/2a6c7edf30.js" crossorigin="anonymous"></script> -->
     <style>
         textarea::placeholder {
@@ -57,7 +58,7 @@
             <div class="d-flex flex-column">
                 <span class="fw-bold h5 align-self-center ">Start Encrypt</span>
 
-                <form action="" method="POST">
+                <form action="" method="POST" id="crypto">
                     <div class="form-group p-2 ">
                         <textarea type="text" class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="plaintext" placeholder="Input plaintext"></textarea>
 
@@ -75,65 +76,10 @@
                         <input class="btn text-light mx-2 " type="submit" style="background-color: var(--blue);" value="Encrypt">
                     </div>
 
-                    <!-- <div class="form-group p-2 " id="outputdisini">
+                    <div class="form-group p-2 " id="outputdisini">
                         <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output"></textarea>
-                    </div> -->
+                    </div>
 
-                    <?php
-                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        require_once "salsa2.php";
-
-                        $plaintext = $_POST['plaintext'];
-                        $key = $_POST['key'];
-                        $mode = $_POST['mode'];
-                        $nonce = '0985jg61';
-
-                        // $key = "kunci";
-                        // $plaintext = "zidnizidan";
-                        // $nonce = '0985jg61';
-
-                        
-                        // Pad or hash the key to ensure it's 32 bytes long
-                        if (strlen($key) < 32) {
-                            $keypadded = str_pad($key, 32, "\0");
-                        } else {
-                            $keypadded = substr(hash('sha256', $key, true), 0, 32);
-                        }
-
-                        if ($mode == 1) {
-                            $output = salsa20_encrypt($plaintext, $key, $nonce);
-                            echo '<div class="form-group p-2 " id="outputdisini">
-                                    <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($output).'</textarea>
-                                </div>';
-                        } elseif ($mode == 2) {
-                            $output = salsa20_decrypt($plaintext, $key, $nonce);
-                            echo '<div class="form-group p-2 " id="outputdisini">
-                                    <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.$output.'</textarea>
-                                </div>';
-                        }
-
-                        // $ciphertext = salsa20_encrypt($plaintext, $keypadded, $nonce);
-                        // $decrypted = salsa20_decrypt($ciphertext, $keypadded, $nonce);
-                        
-                        // echo "Plaintext: $plaintext<br>";
-                        // echo "Ciphertext: " . bin2hex($ciphertext) . "<br>";
-                        // echo "Decrypted: $decrypted<br> ini kuncinya: " . $key;
-
-                        // echo '<div class="form-group p-2 " id="outputdisini">
-                        //     <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.bin2hex($ciphertext).'</textarea>
-                        // </div>';
-
-
-                        // if ($mode == 1) {
-                        //     $output = salsa20_encrypt($plaintext, $key, "your_nonce_here");
-                        //     echo '<div class="form-group p-2 " id="outputdisini">
-                        //     <textarea class="form-control mb-2 text-light" style="background-color: black;" rows="3" name="output" placeholder="Output">'.$output.'</textarea>
-                        // </div>';
-                        // } elseif ($mode == 2) {
-                        //     $output = salsa20_decrypt($plaintext, $key, "your_nonce_here");
-                        // }
-                    }
-                    ?>
                 </form>
             </div>
         </div>
@@ -142,6 +88,79 @@
     <div class="footer text-center d-flex align-items-center justify-content-center " style="height:50px ; background-color: black;">
         <span class="" style="font-size: small;">Kriptografi dan Keamanan Informasi | copyright by Kelompok 4</span>
     </div>
+
+    <!-- <script>
+        document.getElementById('crypto').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form dari pengiriman default
+
+            // const plaintext = document.getElementById('plaintext');
+            const plaintextElement = document.querySelector('textarea[name="plaintext"]');
+            const plaintext = plaintextElement ? plaintextElement.value : '';
+            
+            // const key = document.getElementById('key');
+            const keyElement = document.querySelector('input[name="key"]');
+            const key = keyElement ? keyElement.value : '';
+            
+            // const mode = document.getElementById('mode');
+            const modeElement = document.querySelector('select[name="mode"]');
+            const mode = modeElement ? modeElement.value : '';
+
+            const nonce = 'hjo09hy6'; // Anda dapat mengubah nonce sesuai kebutuhan Anda
+            let output = '';
+
+            let keypad = key;
+            if (key.length < 32) {
+                keypad = key.padStart(32, '\0');
+            }
+
+            if (mode == '1') {
+                const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
+                output = uint8ArrayToHex(ciphertextUint8Array);
+            } else if (mode == '2') {
+                const ciphertextUint8Array = hexToUint8Array(plaintext);
+                output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
+            }
+
+            document.getElementById('output').value = output;
+        });
+    </script> -->
+
+    <script>
+        document.getElementById('crypto').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const plaintextElement = document.querySelector('textarea[name="plaintext"]');
+            const plaintext = plaintextElement ? plaintextElement.value : '';
+            const keyElement = document.querySelector('input[name="key"]');
+            const key = keyElement ? keyElement.value : '';
+            const modeElement = document.querySelector('select[name="mode"]');
+            const mode = modeElement ? modeElement.value : '';
+            const nonce = 'hjo09hy6';
+            let output = '';
+
+            let keypad = key;
+            if (key.length < 32) {
+                keypad = key.padStart(32, '\0');
+            }
+
+            if (plaintext) {
+                if (mode == '1') {
+                    const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
+                    output = uint8ArrayToHex(ciphertextUint8Array);
+                } else if (mode == '2') {
+                    const ciphertextUint8Array = hexToUint8Array(plaintext);
+                    output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
+                }
+            } else {
+                console.error('Plaintext tidak valid');
+            }
+
+            const outputElement = document.querySelector('textarea[name="output"]');
+            if (outputElement) {
+                outputElement.value = output;
+            }
+        });
+    </script>
 </body>
 
 </html>
