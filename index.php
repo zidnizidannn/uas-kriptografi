@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="pattern.css">
     <link rel="stylesheet" href="font.css">
     <script src="assets/bootstrap.bundle.min.js"></script>
+    <script src="/caesar.js"></script>
+    <script src="/vigenere.js"></script>
     <script src="/salsa.js"></script>
     <!-- <script src="https://kit.fontawesome.com/2a6c7edf30.js" crossorigin="anonymous"></script> -->
     <style>
@@ -89,42 +91,6 @@
         <span class="" style="font-size: small;">Kriptografi dan Keamanan Informasi | copyright by Kelompok 4</span>
     </div>
 
-    <!-- <script>
-        document.getElementById('crypto').addEventListener('submit', function(event) {
-            event.preventDefault(); // Mencegah form dari pengiriman default
-
-            // const plaintext = document.getElementById('plaintext');
-            const plaintextElement = document.querySelector('textarea[name="plaintext"]');
-            const plaintext = plaintextElement ? plaintextElement.value : '';
-            
-            // const key = document.getElementById('key');
-            const keyElement = document.querySelector('input[name="key"]');
-            const key = keyElement ? keyElement.value : '';
-            
-            // const mode = document.getElementById('mode');
-            const modeElement = document.querySelector('select[name="mode"]');
-            const mode = modeElement ? modeElement.value : '';
-
-            const nonce = 'hjo09hy6'; // Anda dapat mengubah nonce sesuai kebutuhan Anda
-            let output = '';
-
-            let keypad = key;
-            if (key.length < 32) {
-                keypad = key.padStart(32, '\0');
-            }
-
-            if (mode == '1') {
-                const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
-                output = uint8ArrayToHex(ciphertextUint8Array);
-            } else if (mode == '2') {
-                const ciphertextUint8Array = hexToUint8Array(plaintext);
-                output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
-            }
-
-            document.getElementById('output').value = output;
-        });
-    </script> -->
-
     <script>
         document.getElementById('crypto').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -136,24 +102,35 @@
             const modeElement = document.querySelector('select[name="mode"]');
             const mode = modeElement ? modeElement.value : '';
             const nonce = 'hjo09hy6';
-            let output = '';
+            const length= key.length;
 
+            let output = '';
+            
             let keypad = key;
             if (key.length < 32) {
                 keypad = key.padStart(32, '\0');
             }
-
-            if (plaintext) {
-                if (mode == '1') {
-                    const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
-                    output = uint8ArrayToHex(ciphertextUint8Array);
-                } else if (mode == '2') {
-                    const ciphertextUint8Array = hexToUint8Array(plaintext);
-                    output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
+            if(plaintext){
+                if(mode== 1){
+                    const caesar= caesarCipher(plaintext, length);
+                    const vigenere= vigeEncrypt(caesar, key);
+                    const salsa= salsa20_encrypt(plaintext, keypad, nonce);
+                    output = uint8ArrayToHex(salsa);
+                    console.log('hasil caesar: ', caesar, '\nhasil vigenere: ', vigenere, '\nhasil salsa: ', salsa);
                 }
-            } else {
-                console.error('Plaintext tidak valid');
             }
+
+            // if (plaintext) {
+            //     if (mode == '1') {
+            //         const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
+            //         output = uint8ArrayToHex(ciphertextUint8Array);
+            //     } else if (mode == '2') {
+            //         const ciphertextUint8Array = hexToUint8Array(plaintext);
+            //         output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
+            //     }
+            // } else {
+            //     console.error('Plaintext tidak valid');
+            // }
 
             const outputElement = document.querySelector('textarea[name="output"]');
             if (outputElement) {
