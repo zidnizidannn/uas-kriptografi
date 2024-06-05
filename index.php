@@ -68,14 +68,11 @@
                     </div>
 
                     <div class="d-flex justify-content-center">
-
-                        <select class="btn text-light form-select w-auto  " id="option" name="mode" aria-label="Default select example">
-                            <option class="bg-dark " selected>Mode</option>
-                            <option class="bg-dark " value="1">Encrypt</option>
-                            <option class="bg-dark " value="2">Decrypt</option>
+                        <select class="btn text-light form-select w-auto" id="option" name="mode" aria-label="Default select example">
+                            <option class="bg-dark" selected value="1">Encrypt</option>
+                            <option class="bg-dark" value="2">Decrypt</option>
                         </select>
-
-                        <input class="btn text-light mx-2 " type="submit" style="background-color: var(--blue);" value="Encrypt">
+                        <input class="btn text-light mx-2" type="submit" id="actionButton" style="background-color: var(--blue);" value="Encrypt">
                     </div>
 
                     <div class="form-group p-2 " id="outputdisini">
@@ -91,53 +88,6 @@
         <span class="" style="font-size: small;">Kriptografi dan Keamanan Informasi | copyright by Kelompok 4</span>
     </div>
 
-    <script>
-        document.getElementById('crypto').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const plaintextElement = document.querySelector('textarea[name="plaintext"]');
-            const plaintext = plaintextElement ? plaintextElement.value : '';
-            const keyElement = document.querySelector('input[name="key"]');
-            const key = keyElement ? keyElement.value : '';
-            const modeElement = document.querySelector('select[name="mode"]');
-            const mode = modeElement ? modeElement.value : '';
-            const nonce = 'hjo09hy6';
-            const length= key.length;
-
-            let output = '';
-            
-            let keypad = key;
-            if (key.length < 32) {
-                keypad = key.padStart(32, '\0');
-            }
-            if(plaintext){
-                if(mode== 1){
-                    const caesar= caesarCipher(plaintext, length);
-                    const vigenere= vigeEncrypt(caesar, key);
-                    const salsa= salsa20_encrypt(plaintext, keypad, nonce);
-                    output = uint8ArrayToHex(salsa);
-                    console.log('hasil caesar: ', caesar, '\nhasil vigenere: ', vigenere, '\nhasil salsa: ', salsa);
-                }
-            }
-
-            // if (plaintext) {
-            //     if (mode == '1') {
-            //         const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
-            //         output = uint8ArrayToHex(ciphertextUint8Array);
-            //     } else if (mode == '2') {
-            //         const ciphertextUint8Array = hexToUint8Array(plaintext);
-            //         output = salsa20_decrypt(ciphertextUint8Array, keypad, nonce);
-            //     }
-            // } else {
-            //     console.error('Plaintext tidak valid');
-            // }
-
-            const outputElement = document.querySelector('textarea[name="output"]');
-            if (outputElement) {
-                outputElement.value = output;
-            }
-        });
-    </script>
 </body>
 
 </html>

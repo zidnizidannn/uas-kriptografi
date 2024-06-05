@@ -1,4 +1,4 @@
-// Salsa20 quarter round function
+// Fungsi quarter round Salsa20
 function salsa20_quarterRound(a, b, c, d) {
     b ^= ((a + d) & 0xffffffff) << 7 | ((a + d) & 0xffffffff) >>> (32 - 7);
     c ^= ((b + a) & 0xffffffff) << 9 | ((b + a) & 0xffffffff) >>> (32 - 9);
@@ -6,7 +6,7 @@ function salsa20_quarterRound(a, b, c, d) {
     a ^= ((d + c) & 0xffffffff) << 18 | ((d + c) & 0xffffffff) >>> (32 - 18);
 }
 
-// Salsa20 double round function
+// Fungsi double round Salsa20
 function salsa20_doubleRound(x) {
     salsa20_quarterRound(x[0], x[4], x[8], x[12]);
     salsa20_quarterRound(x[5], x[9], x[13], x[1]);
@@ -101,24 +101,3 @@ function hexToUint8Array(hexString) {
     }
     return uint8Array;
 }
-
-// let key = 'ghsjeudbsmcsa';
-// const nonce = 'hjo09hy6';
-// const plaintext = 'nama saya zidni';
-
-// let keypad;
-
-// if (key.length < 32) {
-//     const keypad = key.padStart(32, '\0');
-// }
-
-
-// const ciphertextUint8Array = salsa20_encrypt(plaintext, keypad, nonce);
-// const ciphertextHex = uint8ArrayToHex(ciphertextUint8Array);
-// console.log(keypad, '\n', 'Ciphertext (hex):', ciphertextHex);
-
-// const ciphertextUint8ArrayFromHex = hexToUint8Array(ciphertextHex);
-// const decryptedText = salsa20_decrypt(ciphertextUint8ArrayFromHex, keypad, nonce);
-// console.log('Decrypted Text:', decryptedText);
-
-// console.log('Decryption successful:', plaintext === decryptedText);
