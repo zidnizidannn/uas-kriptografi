@@ -88,6 +88,60 @@
         <span class="" style="font-size: small;">Kriptografi dan Keamanan Informasi | copyright by Kelompok 4</span>
     </div>
 
+    <script>
+        document.getElementById('crypto').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const plaintextElement = document.querySelector('textarea[name="plaintext"]');
+            const plaintext = plaintextElement ? plaintextElement.value : '';
+            const keyElement = document.querySelector('input[name="key"]');
+            const key = keyElement ? keyElement.value : '';
+            const modeElement = document.querySelector('select[name="mode"]');
+            const mode = modeElement ? modeElement.value : '';
+            const nonce = 'hjo09hy6';
+
+            let output = '';
+
+            let keypad = key;
+            if (key.length < 32) {
+                keypad = key.padStart(32, '\0');
+            }
+            if (plaintext) {
+                if (mode == 1) {
+                    const caesar = caesarCipher(plaintext, key.length);
+                    const vigenere = vigeEncrypt(caesar, key);
+                    const salsa = salsa20_encrypt(vigenere, keypad, nonce);
+                    output = uint8ArrayToHex(salsa);
+                    console.log('hasil caesar: ', caesar, '\nhasil vigenere: ', vigenere, '\nhasil salsa: ', salsa);
+                } else if (mode == 2) {
+                    const cipher = hexToUint8Array(plaintext);
+                    const salsaDecrypt = salsa20_decrypt(cipher, keypad, nonce);
+                    const vigenereDecrypted = vigeDecrypt(salsaDecrypt, key);
+                    const caesarDecrypted = caesarCipher(vigenereDecrypted, key.length, true);
+                    output = caesarDecrypted;
+                    console.log('ini cipher: ', cipher, '\nini salsa: ', salsaDecrypt, '\nini vigenere: ', vigenereDecrypted, '\nini caesar: ', caesarDecrypted)
+                }
+            }
+
+            const outputElement = document.querySelector('textarea[name="output"]');
+            if (outputElement) {
+                outputElement.value = output;
+            }
+
+            const optionSelect = document.getElementById('option');
+            const actionButton = document.getElementById('actionButton');
+
+            updateButtonValue();
+
+            optionSelect.addEventListener('change', updateButtonValue);
+            function updateButtonValue() {
+                const selectedOption = optionSelect.value;
+                const buttonValue = selectedOption === '1' ? 'Encrypt' : 'Decrypt';
+                actionButton.value = buttonValue;
+            }
+        });
+    </script>
+
 </body>
 
 </html>

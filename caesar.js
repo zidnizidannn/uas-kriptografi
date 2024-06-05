@@ -1,3 +1,4 @@
+// export default function caesarCipher(str, shift, decrypt = false) {
 const caesarCipher = (str, shift, decrypt = false) => {
     const s = decrypt ? (26 - shift) % 26 : shift;
     const n = s > 0 ? s : 26 + (s % 26);
@@ -12,3 +13,7 @@ const caesarCipher = (str, shift, decrypt = false) => {
         })
         .join('');
 };
+
+const plainteks= 'nama saya zidni';
+
+console.log(caesarCipher(plainteks, 5));
